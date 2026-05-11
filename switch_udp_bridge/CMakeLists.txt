@@ -5,13 +5,45 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(switch_interfaces REQUIRED)
 
-add_executable(udp_bridge_node src/udp_bridge_node.cpp)
+add_library(${PROJECT_NAME}_core
+  src/crc16.cpp
+  src/protocol.cpp
+  src/udp_socket.cpp
+  src/tx_scheduler.cpp
+)
+
+target_include_directories(${PROJECT_NAME}_core PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+ament_target_dependencies(${PROJECT_NAME}_core
+  rclcpp
+  std_msgs
+  switch_interfaces
+)
+
+add_executable(udp_bridge_node
+  src/main.cpp
+  src/udp_bridge_node.cpp
+)
+
+target_include_directories(udp_bridge_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(udp_bridge_node
+  ${PROJECT_NAME}_core
+)
 
 ament_target_dependencies(udp_bridge_node
   rclcpp
@@ -19,27 +51,23 @@ ament_target_dependencies(udp_bridge_node
   switch_interfaces
 )
 
-install(TARGETS
-  udp_bridge_node
-  DESTINATION lib/${PROJECT_NAME}
+install(
+  TARGETS
+    ${PROJECT_NAME}_core
+    udp_bridge_node
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY
-  config
-  launch
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+install(
+  DIRECTORY config launch
   DESTINATION share/${PROJECT_NAME}
 )
-
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
 
 ament_package()

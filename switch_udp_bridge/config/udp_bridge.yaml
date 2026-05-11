@@ -3,5 +3,14 @@ udp_bridge_node:
     stm32_ip: "192.168.1.10"
     stm32_port: 50000
     local_port: 50001
+
     send_rate_hz: 200.0
     command_timeout_ms: 50.0
+
+    # 超时后发送的命令类型：
+    # 1 = 运动命令，但是速度、气压全部为 0
+    # 2 = 读取状态命令，不主动改变底层运动状态
+    # 建议先用 1，更偏安全；如果 STM32 端另有安全超时逻辑，也可以改成 2。
+    timeout_command_type: 1
+
+    max_rx_packets_per_spin: 8
