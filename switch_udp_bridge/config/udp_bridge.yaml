@@ -1,10 +1,16 @@
+# UDP 桥接节点配置参数
 udp_bridge_node:
   ros__parameters:
+    # STM32 控制板的 IP 地址
     stm32_ip: "192.168.1.10"
+    # STM32 控制板的 UDP 接收端口
     stm32_port: 50000
+    # ROS2 本机的 UDP 接收端口
     local_port: 50001
 
+    # 定频发送频率，单位：Hz（每秒向 STM32 发送 UDP 命令帧的次数）
     send_rate_hz: 200.0
+    # 命令超时时间，单位：毫秒（超过此时间未收到新命令则触发超时保护）
     command_timeout_ms: 50.0
 
     # 超时后发送的命令类型：
@@ -13,4 +19,5 @@ udp_bridge_node:
     # 建议先用 1，更偏安全；如果 STM32 端另有安全超时逻辑，也可以改成 2。
     timeout_command_type: 1
 
+    # 单次 spin 循环中最多处理的接收数据包数量（防止突发大量数据包导致处理阻塞）
     max_rx_packets_per_spin: 8
