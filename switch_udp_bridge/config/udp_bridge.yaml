@@ -1,0 +1,7 @@
+udp_bridge_node:
+  ros__parameters:
+    stm32_ip: "192.168.1.10"
+    stm32_port: 50000
+    local_port: 50001
+    send_rate_hz: 200.0
+    command_timeout_ms: 50.0

@@ -1,0 +1,5 @@
+uint8 command_type
+uint8 id
+float32 steering_angle
+float32 wheel_speed
+float32 fan_pressure
